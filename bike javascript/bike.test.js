@@ -1,12 +1,17 @@
-const {createBike,turnOn,turnOff,accelerate,decelerate,} = require('./bike');
+const { createBike, turnOn, turnOff, accelerate, decelerate } = require('./bike');
 
-test('bike is off when i create the bike', () => {
-    const bike = createBike();
-    expect(bike.gearStatus).toBe(0);
+let bike;
+
+beforeEach(() => {
+  bike = createBike();
 });
 
-test('gear stays 0 after turnOn until accelerate', () => {
-  const bike = createBike();
+test('bike is off when i create the bike', () => {
+  expect(bike.gearStatus).toBe(0);
+  expect(bike.accelerator).toBe(0);
+});
+
+test('gear stays at 0 after turnOn until accelerate', () => {
   expect(bike.gearStatus).toBe(0);
   turnOn(bike);
   expect(bike.gearStatus).toBe(0);
@@ -15,13 +20,12 @@ test('gear stays 0 after turnOn until accelerate', () => {
 });
 
 test('turnOn sets running to true', () => {
-  const bike = createBike();
   turnOn(bike);
   expect(bike.running).toBe(true);
 });
 
 test('turnOff sets running false and resets accelerator and gear', () => {
-  const bike = createBike(10, 3);
+  bike = createBike(10, 3);
   turnOn(bike);
   expect(bike.running).toBe(true);
   turnOff(bike);
@@ -31,11 +35,11 @@ test('turnOff sets running false and resets accelerator and gear', () => {
 });
 
 test('accelerate increases speed according to gear and updates gear', () => {
-  const bike = createBike();
   turnOn(bike);
   accelerate(bike);
   expect(bike.accelerator).toBe(1);
   expect(bike.gearStatus).toBe(1);
+
   bike.accelerator = 22;
   bike.gearStatus = 2;
   accelerate(bike);
@@ -44,11 +48,12 @@ test('accelerate increases speed according to gear and updates gear', () => {
 });
 
 test('decelerate decreases speed according to gear and updates gear', () => {
-  const bike = createBike(24, 2);
+  bike = createBike(24, 2);
   turnOn(bike);
   decelerate(bike);
   expect(bike.accelerator).toBe(22);
   expect(bike.gearStatus).toBe(2);
+
   bike.accelerator = 1;
   bike.gearStatus = 1;
   decelerate(bike);
@@ -57,7 +62,48 @@ test('decelerate decreases speed according to gear and updates gear', () => {
 });
 
 test('accelerate or decelerate does nothing if bike is off', () => {
-  const bike = createBike();
   expect(accelerate(bike)).toBeNull();
   expect(decelerate(bike)).toBeNull();
+});
+
+test('gear changes to 3 when speed passes 31', () => {
+  bike = createBike(30, 2);
+  turnOn(bike);
+  accelerate(bike);
+  expect(bike.gearStatus).toBe(3);
+});
+
+test('gear changes to 4 when speed passes 41', () => {
+  bike = createBike(40, 3);
+  turnOn(bike);
+  accelerate(bike);
+  expect(bike.gearStatus).toBe(4);
+});
+
+test('speed does not go negative on multiple decelerates', () => {
+  bike = createBike(1, 1);
+  turnOn(bike);
+  decelerate(bike);
+  decelerate(bike);
+  decelerate(bike);
+  expect(bike.accelerator).toBe(0);
+  expect(bike.gearStatus).toBe(0);
+});
+
+test('multiple accelerates increase speed correctly', () => {
+  turnOn(bike);
+  accelerate(bike);
+  accelerate(bike);
+  accelerate(bike);
+  expect(bike.accelerator).toBe(3);
+  expect(bike.gearStatus).toBe(1);
+});
+
+test('gear resets to 0 after turning off from moving state', () => {
+  bike = createBike(25, 2);
+  turnOn(bike);
+  turnOff(bike);
+  expect(bike.gearStatus).toBe(0);
+  expect(bike.accelerator).toBe(0);
+  expect(bike.running).toBe(false);
 });

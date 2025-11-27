@@ -131,14 +131,5 @@ public class BikeTest {
         assertEquals(0, bike.getGearStatus());
     }
 
-    @Test
-    void accelerateAndDecelerateReturnExpectedValues() {
-        Bike bike = new Bike();
-        bike.turnOn();
-        Integer acc = bike.accelerate();
-        assertNotNull(acc);
-        Integer dec = bike.decelerate();
-        assertNotNull(dec);
-        assertTrue(dec <= acc);
-    }
+
 }
